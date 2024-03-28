@@ -61,6 +61,7 @@ namespace SoftITOFlix.Controllers
         // PUT: api/Episodes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [Authorize(Roles = "ContentAdministrator")]
         public void PutEpisode(Episode episode)
         {
             _context.Episodes.Update(episode);
