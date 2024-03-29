@@ -27,6 +27,7 @@ namespace SoftITOFlix.Data
             builder.Entity<UserFavorite>().HasKey(u => new { u.UserId, u.MediaId });
             builder.Entity<UserWatched>().HasKey(u => new { u.UserId, u.EpisodeId });
             builder.Entity<UserPlan>().HasKey(u => new { u.UserId, u.PlanId });
+            builder.Entity<Episode>().HasIndex(e => new { e.MediaId, e.SeasonNumber, e.EpisodeNumber});
         }
 
         public DbSet<SoftITOFlix.Models.Category> Categories { get; set; } = default!;

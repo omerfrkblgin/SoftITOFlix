@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,17 +24,23 @@ namespace SoftITOFlix.Controllers
 
         // GET: api/Media
         [HttpGet]
-        public ActionResult<List<Media>> GetMedias()
+        [Authorize]
+        public ActionResult<List<Media>> GetMedias(bool includePassive = true)
         {
-            return _context.Medias.AsNoTracking().ToList();
+            IQueryable<Media> media = _context.Medias;
+            if (includePassive == false)
+            {
+                media = media.Where(m => m.Passive == false);
+            }
+            return media.AsNoTracking().ToList();
         }
 
         // GET: api/Media/5
         [HttpGet("{id}")]
+        [Authorize]
         public ActionResult<Media> GetMedia(int id)
         {
             Media? media = _context.Medias.Find(id);
-
             if (media == null)
             {
                 return NotFound();
@@ -48,14 +55,7 @@ namespace SoftITOFlix.Controllers
         public void PutMedia(Media media)
         {
             _context.Medias.Update(media);
-
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-            }
+            _context.SaveChanges();
         }
 
         // POST: api/Media

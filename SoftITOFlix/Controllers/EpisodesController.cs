@@ -41,14 +41,7 @@ namespace SoftITOFlix.Controllers
         [Authorize]
         public ActionResult<Episode> GetEpisode(long id)
         {
-            Episode? episode = null;
-
-            if (User.FindFirstValue(ClaimTypes.NameIdentifier) != id.ToString())
-            {
-                return Unauthorized();
-            }
-
-            episode = _context.Episodes.Find(id);
+            Episode? episode = _context.Episodes.Find(id);
 
             if (episode == null)
             {
@@ -61,23 +54,18 @@ namespace SoftITOFlix.Controllers
         // PUT: api/Episodes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        [Authorize(Roles = "ContentAdministrator")]
+        [Authorize(Roles = "ContentAdmin")]
         public void PutEpisode(Episode episode)
         {
             _context.Episodes.Update(episode);
+            _context.SaveChanges();
 
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-            }
         }
 
         // POST: api/Episodes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [Authorize(Roles = "ContentAdmin")]
         public long PostEpisode(Episode episode)
         {
 
@@ -97,7 +85,7 @@ namespace SoftITOFlix.Controllers
             {
                 return "null";
             }
-            episode.Passive = false;
+            episode.Passive = true;
             _context.SaveChanges();
 
             return "Deleted";
