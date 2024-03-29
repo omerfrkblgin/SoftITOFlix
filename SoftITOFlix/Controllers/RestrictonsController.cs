@@ -13,63 +13,57 @@ namespace SoftITOFlix.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoriesController : ControllerBase
+    public class RestrictonsController : ControllerBase
     {
         private readonly SoftITOFlixContext _context;
 
-        public CategoriesController(SoftITOFlixContext context)
+        public RestrictonsController(SoftITOFlixContext context)
         {
             _context = context;
         }
 
-        // GET: api/Categories
+        // GET: api/Restrictons
         [HttpGet]
-        public ActionResult<List<Category>> GetCategory()
+        public ActionResult<List<Restricton>> GetRestrictons()
         {
-            return _context.Categories.AsNoTracking().ToList();
+            return _context.Restrictons.ToList();
         }
 
-        // GET: api/Categories/5
+        // GET: api/Restrictons/5
         [HttpGet("{id}")]
-        public ActionResult<Category> GetCategory(short id)
+        public ActionResult<Restricton> GetRestricton(byte id)
         {
-            Category? category = _context.Categories.Find(id);
-            if (category == null)
+            Restricton? restricton = _context.Restrictons.Find(id);
+
+            if (restricton == null)
             {
                 return NotFound();
             }
 
-            return category;
+            return restricton;
         }
 
-        // PUT: api/Categories/5
+        // PUT: api/Restrictons/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         [Authorize(Roles = "ContentAdmin")]
-        public void PutCategory(Category category)
+        public void PutRestricton(Restricton restricton)
         {
-            _context.Categories.Update(category);
-
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-               
-            }
+            _context.Restrictons.Update(restricton);
+            _context.SaveChanges();
         }
 
-        // POST: api/Categories
+        // POST: api/Restrictons
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         [Authorize(Roles = "ContentAdmin")]
-        public short PostCategory(Category category)
+        public byte PostRestricton(Restricton restricton)
         {
-            _context.Categories.Add(category);
+            _context.Restrictons.Add(restricton);
             _context.SaveChanges();
-
-            return category.Id;
+            return restricton.Id;
         }
+
+
     }
 }
