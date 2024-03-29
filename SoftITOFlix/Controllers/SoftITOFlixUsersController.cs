@@ -169,7 +169,7 @@ namespace SoftITOFlix.Controllers
             }
 
             user.Passive = true;
-
+            _context.SaveChanges();
             return Ok();
         }
     }
