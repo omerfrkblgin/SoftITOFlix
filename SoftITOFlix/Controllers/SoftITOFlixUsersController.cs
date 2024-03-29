@@ -18,10 +18,12 @@ namespace SoftITOFlix.Controllers
     public class SoftITOFlixUsersController : ControllerBase
     {
         private readonly SignInManager<SoftITOFlixUser> _signInManager;
+        private readonly SoftITOFlixContext _context;
 
-        public SoftITOFlixUsersController(SignInManager<SoftITOFlixUser> signInManager)
+        public SoftITOFlixUsersController(SignInManager<SoftITOFlixUser> signInManager, SoftITOFlixContext context)
         {
             _signInManager = signInManager;
+            _context = context;
         }
         public struct LoginModel
         {
@@ -31,7 +33,7 @@ namespace SoftITOFlix.Controllers
 
         // GET: api/SoftITOFlixUsers
         [HttpGet]
-        [Authorize(Roles = "Adminstrator")]
+        [Authorize(Roles = "Admin")]
         public ActionResult<List<SoftITOFlixUser>> GetUsers(bool includePassive = true)
         {
             IQueryable<SoftITOFlixUser> users = _signInManager.UserManager.Users;
@@ -49,7 +51,7 @@ namespace SoftITOFlix.Controllers
         public ActionResult<SoftITOFlixUser> GetSoftITOFlixUser(long id)
         {
             SoftITOFlixUser? softITOFlixUser = null;
-            if (User.IsInRole("Administrator") == false)
+            if (User.IsInRole("Admin") == false)
             {
                 if (User.FindFirstValue(ClaimTypes.NameIdentifier) != id.ToString())
                 {
@@ -99,14 +101,25 @@ namespace SoftITOFlix.Controllers
         }
 
         [HttpPost("Login")]
-        public bool Login(LoginModel loginModel)
+        public ActionResult<bool> Login(LoginModel loginModel)
         {
             Microsoft.AspNetCore.Identity.SignInResult result;
             SoftITOFlixUser user = _signInManager.UserManager.FindByNameAsync(loginModel.Username).Result;
 
             if(user == null)
             {
-                return false;
+                return NotFound();
+            }
+
+            if(_context.UserPlans.Where(u => u.UserId == user.Id && u.EndDate >= DateTime.Today).Any() == false)
+            {
+                user.Passive= true;
+                _signInManager.UserManager.UpdateAsync(user).Wait();
+            }
+
+            if(user.Passive == true)
+            {
+                return Content("Passive");
             }
             result = _signInManager.PasswordSignInAsync(user, loginModel.Password, false, false).Result;
 
