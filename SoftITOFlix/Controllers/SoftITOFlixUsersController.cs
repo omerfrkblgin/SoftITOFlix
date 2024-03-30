@@ -75,13 +75,12 @@ namespace SoftITOFlix.Controllers
         public ActionResult PutSoftITOFlixUser(SoftITOFlixUser softITOFlixUser)
         {
             SoftITOFlixUser? user = null;
-            if (User.IsInRole("CustomerRepresentative") == false)
-            {
+            
                 if (User.FindFirstValue(ClaimTypes.NameIdentifier) != softITOFlixUser.Id.ToString())
                 {
                     return Unauthorized();
                 }
-            }
+            
 
             user = _signInManager.UserManager.Users.Where(u=>u.Id== softITOFlixUser.Id).FirstOrDefault()!;
 

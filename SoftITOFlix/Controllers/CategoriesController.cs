@@ -49,15 +49,7 @@ namespace SoftITOFlix.Controllers
         public void PutCategory(Category category)
         {
             _context.Categories.Update(category);
-
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-               
-            }
+            _context.SaveChanges();
         }
 
         // POST: api/Categories

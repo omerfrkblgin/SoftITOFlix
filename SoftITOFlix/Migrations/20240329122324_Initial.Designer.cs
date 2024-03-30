@@ -12,7 +12,7 @@ using SoftITOFlix.Data;
 namespace SoftITOFlix.Migrations
 {
     [DbContext(typeof(SoftITOFlixContext))]
-    [Migration("20240327121010_Initial")]
+    [Migration("20240329122324_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -225,7 +225,7 @@ namespace SoftITOFlix.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MediaId");
+                    b.HasIndex("MediaId", "SeasonNumber", "EpisodeNumber");
 
                     b.ToTable("Episodes");
                 });

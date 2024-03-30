@@ -4,5 +4,6 @@ namespace SoftITOFlix.Models
 {
     public class SoftITOFlixRole : IdentityRole<long>
     {
+        
     }
 }

@@ -479,9 +479,9 @@ namespace SoftITOFlix.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Episodes_MediaId",
+                name: "IX_Episodes_MediaId_SeasonNumber_EpisodeNumber",
                 table: "Episodes",
-                column: "MediaId");
+                columns: new[] { "MediaId", "SeasonNumber", "EpisodeNumber" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_MediaActors_ActorId",
