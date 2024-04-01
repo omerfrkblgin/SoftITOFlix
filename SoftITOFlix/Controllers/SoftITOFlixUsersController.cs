@@ -100,10 +100,14 @@ namespace SoftITOFlix.Controllers
         }
 
         [HttpPost("Login")]
-        public ActionResult<bool> Login(LoginModel loginModel)
+        public ActionResult<List<Media>> Login(LoginModel loginModel)
         {
             Microsoft.AspNetCore.Identity.SignInResult result;
             SoftITOFlixUser user = _signInManager.UserManager.FindByNameAsync(loginModel.Username).Result;
+            List<Media> medias = new List<Media>();
+            IQueryable<Media> mediaQuery;
+            IQueryable<int> userWatches;
+            IGrouping<short, MediaCategory> mediaCategories;
 
             if(user == null)
             {
@@ -122,8 +126,30 @@ namespace SoftITOFlix.Controllers
             }
             result = _signInManager.PasswordSignInAsync(user, loginModel.Password, false, false).Result;
 
-            return result.Succeeded;
+            
+            if(result.Succeeded == true)
+            {
+                mediaCategories = _context.UserFavorites.Where(u => u.UserId == user.Id).
+                   Include(u => u.Media).
+                   ThenInclude(u => u.MediaCategories).
+                   SelectMany(u => u.Media!.MediaCategories!).
+                   GroupBy(m => m.CategoryId).
+                   OrderByDescending(m=>m.Count()).
+                   FirstOrDefault()!;
+                if(mediaCategories != null)
+                {
+                    userWatches = _context.UserWatches.Where(u => u.UserId == user.Id).Include(u => u.Episode).Select(u => u.Episode!.MediaId).Distinct();
 
+                    mediaQuery = _context.Medias.Include(m => m.MediaCategories.Where(mc => mc.CategoryId == mediaCategories.Key)).Where(m => userWatches.Contains(m.Id));
+
+                }
+            }
+            return medias;
+        }
+
+        [HttpPost("Logout")]
+        public void Logout() 
+        {
 
         }
 

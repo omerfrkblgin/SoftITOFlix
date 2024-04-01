@@ -26,24 +26,16 @@ namespace SoftITOFlix.Controllers
 
         // GET: api/UserPlans
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserPlan>>> GetUserPlans()
+        public ActionResult<List<UserPlan>> GetUserPlans()
         {
-            if (_context.UserPlans == null)
-            {
-                return NotFound();
-            }
-            return await _context.UserPlans.ToListAsync();
+            return _context.UserPlans.ToList();
         }
 
         // GET: api/UserPlans/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<UserPlan>> GetUserPlan(long id)
+        public ActionResult<UserPlan> GetUserPlan(long id)
         {
-            if (_context.UserPlans == null)
-            {
-                return NotFound();
-            }
-            var userPlan = await _context.UserPlans.FindAsync(id);
+            var userPlan = _context.UserPlans.Find(id);
 
             if (userPlan == null)
             {
@@ -56,7 +48,7 @@ namespace SoftITOFlix.Controllers
         // PUT: api/UserPlans/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUserPlan(long id, UserPlan userPlan)
+        public ActionResult PutUserPlan(long id, UserPlan userPlan)
         {
             if (id != userPlan.UserId)
             {
@@ -67,18 +59,11 @@ namespace SoftITOFlix.Controllers
 
             try
             {
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UserPlanExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                
             }
 
             return NoContent();
@@ -119,11 +104,6 @@ namespace SoftITOFlix.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
-        }
-
-        private bool UserPlanExists(long id)
-        {
-            return (_context.UserPlans?.Any(e => e.UserId == id)).GetValueOrDefault();
         }
     }
 }
