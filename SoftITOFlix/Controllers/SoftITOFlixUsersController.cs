@@ -107,18 +107,18 @@ namespace SoftITOFlix.Controllers
             List<Media> medias = new List<Media>();
             IQueryable<Media> mediaQuery;
             IQueryable<int> userWatches;
-            IGrouping<short, MediaCategory> mediaCategories;
+            IGrouping<short, MediaCategory>? mediaCategories;
 
             if(user == null)
             {
                 return NotFound();
             }
 
-            //if(_context.UserPlans.Where(u => u.UserId == user.Id && u.EndDate >= DateTime.Today).Any() == false)
-            //{
-            //    user.Passive= true;
-            //    _signInManager.UserManager.UpdateAsync(user).Wait();
-            //}
+            if(_context.UserPlans.Where(u => u.UserId == user.Id && u.EndDate >= DateTime.Today).Any() == false)
+            {
+                user.Passive= true;
+                _signInManager.UserManager.UpdateAsync(user).Wait();
+            }
             if (user.Passive == true)
             {
                 return Content("Passive");
@@ -131,10 +131,10 @@ namespace SoftITOFlix.Controllers
                    Include(u => u.Media).
                    ThenInclude(u => u.MediaCategories).
                    ToList().
-                   SelectMany(u => u.Media!.MediaCategories!).
+                   SelectMany(u => u.Media.MediaCategories!).
                    GroupBy(m => m.CategoryId).
                    OrderByDescending(m=>m.Count()).
-                   FirstOrDefault()!;
+                   FirstOrDefault();
                 if(mediaCategories != null)
                 {
                     userWatches = _context.UserWatches.Where(u => u.UserId == user.Id).Include(u => u.Episode).Select(u => u.Episode!.MediaId).Distinct();

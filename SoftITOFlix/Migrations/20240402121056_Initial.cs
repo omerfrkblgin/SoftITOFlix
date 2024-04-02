@@ -181,8 +181,8 @@ namespace SoftITOFlix.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
-                    ProviderKey = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserId = table.Column<long>(type: "bigint", nullable: false)
                 },
@@ -226,8 +226,8 @@ namespace SoftITOFlix.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<long>(type: "bigint", nullable: false),
-                    LoginProvider = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -368,15 +368,16 @@ namespace SoftITOFlix.Migrations
                 name: "UserPlans",
                 columns: table => new
                 {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<long>(type: "bigint", nullable: false),
                     PlanId = table.Column<short>(type: "smallint", nullable: false),
-                    Id = table.Column<long>(type: "bigint", nullable: false),
                     StartDate = table.Column<DateTime>(type: "date", nullable: false),
                     EndDate = table.Column<DateTime>(type: "date", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserPlans", x => new { x.UserId, x.PlanId });
+                    table.PrimaryKey("PK_UserPlans", x => x.Id);
                     table.ForeignKey(
                         name: "FK_UserPlans_AspNetUsers_UserId",
                         column: x => x.UserId,
@@ -512,6 +513,11 @@ namespace SoftITOFlix.Migrations
                 name: "IX_UserPlans_PlanId",
                 table: "UserPlans",
                 column: "PlanId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserPlans_UserId",
+                table: "UserPlans",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserWatches_EpisodeId",

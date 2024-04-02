@@ -34,7 +34,7 @@ namespace SoftITOFlix.Controllers
         [HttpGet("{id}")]
         public ActionResult<MediaActor> GetMediaActor(int mediaId)
         {
-            MediaActor mediaActor = _context.MediaActors.Where(m => m.MediaId == mediaId).FirstOrDefault()!;
+            MediaActor? mediaActor = _context.MediaActors.Where(m => m.MediaId == mediaId).FirstOrDefault();
 
             if (mediaActor == null)
             {
@@ -70,7 +70,7 @@ namespace SoftITOFlix.Controllers
 
         // DELETE: api/MediaActors/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = "ContentAdmin")
+        [Authorize(Roles = "ContentAdmin")]
         public ActionResult DeleteMediaActor(int id)
         {
             MediaActor? mediaActor = _context.MediaActors.Find(id);

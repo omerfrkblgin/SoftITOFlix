@@ -50,14 +50,7 @@ namespace SoftITOFlix.Controllers
         public void PutDirector(Director director)
         {
             _context.Directors.Update(director);
-
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {   
-            }
+            _context.SaveChanges();
         }
 
         // POST: api/Directors

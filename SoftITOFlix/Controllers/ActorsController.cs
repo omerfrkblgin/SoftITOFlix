@@ -33,7 +33,7 @@ namespace SoftITOFlix.Controllers
         [HttpGet("{id}")]
         public ActionResult<Actor> GetActor(int id)
         {
-            Actor actor = _context.Actors.Find(id);
+            Actor? actor = _context.Actors.Find(id);
 
             if (actor == null)
             {
@@ -47,7 +47,7 @@ namespace SoftITOFlix.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         [Authorize(Roles = "ContentAdmin")]
-        public void PutActor(int id, Actor actor)
+        public void PutActor(Actor actor)
         {
             _context.Actors.Update(actor);
             _context.SaveChanges();

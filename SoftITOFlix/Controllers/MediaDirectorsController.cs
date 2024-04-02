@@ -34,7 +34,7 @@ namespace SoftITOFlix.Controllers
         public ActionResult<MediaDirector> GetMediaDirector(int mediaId)
         {
             
-            MediaDirector mediaDirector = _context.MediaDirectors.Where(m => m.MediaId == mediaId).FirstOrDefault();
+            MediaDirector? mediaDirector = _context.MediaDirectors.Where(m => m.MediaId == mediaId).FirstOrDefault();
             return mediaDirector;
         }
 
@@ -44,8 +44,8 @@ namespace SoftITOFlix.Controllers
         [Authorize(Roles = "ContentAdmin")]
         public bool PostMediaDirector(string mediaName, int directorId)
         {
-            MediaDirector mediaDirector = new MediaDirector();
-            Media media = _context.Medias.Where(m => m.Name == mediaName).FirstOrDefault();
+            MediaDirector? mediaDirector = new MediaDirector();
+            Media? media = _context.Medias.Where(m => m.Name == mediaName).FirstOrDefault();
             if (media == null)
             {
                 return false;
@@ -63,7 +63,7 @@ namespace SoftITOFlix.Controllers
         public ActionResult DeleteMediaDirector(int mediaId, int directorId)
         {
            
-            MediaDirector mediaDirector = _context.MediaDirectors.Where(m => m.MediaId == mediaId).FirstOrDefault();
+            MediaDirector? mediaDirector = _context.MediaDirectors.Where(m => m.MediaId == mediaId).FirstOrDefault();
             if (mediaDirector == null || directorId != mediaDirector.DirectorId)
             {
                 return NotFound();

@@ -1,9 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SoftITOFlix.Models
 {
     public class UserPlan
     {
+        [Key]
         public long Id { get; set; }
 
         public long UserId { get; set; }

@@ -75,7 +75,7 @@ namespace SoftITOFlix.Controllers
         public void PostUserPlan(string email, short planId)
         {
             UserPlan userPlan = new UserPlan();
-            SoftITOFlixUser user = _userManager.Users.Where(u => u.Email == email).FirstOrDefault();
+            SoftITOFlixUser? user = _userManager.Users.Where(u => u.Email == email).FirstOrDefault();
             if (user != null)
             {
                 userPlan.UserId = user.Id;

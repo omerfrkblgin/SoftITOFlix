@@ -12,7 +12,7 @@ using SoftITOFlix.Data;
 namespace SoftITOFlix.Migrations
 {
     [DbContext(typeof(SoftITOFlixContext))]
-    [Migration("20240329122324_Initial")]
+    [Migration("20240402121056_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -75,12 +75,10 @@ namespace SoftITOFlix.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<long>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderKey")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
@@ -116,12 +114,10 @@ namespace SoftITOFlix.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");
@@ -485,24 +481,29 @@ namespace SoftITOFlix.Migrations
 
             modelBuilder.Entity("SoftITOFlix.Models.UserPlan", b =>
                 {
-                    b.Property<long>("UserId")
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    b.Property<short>("PlanId")
-                        .HasColumnType("smallint");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("date");
 
-                    b.Property<long>("Id")
-                        .HasColumnType("bigint");
+                    b.Property<short>("PlanId")
+                        .HasColumnType("smallint");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("date");
 
-                    b.HasKey("UserId", "PlanId");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("PlanId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("UserPlans");
                 });

@@ -34,7 +34,7 @@ namespace SoftITOFlix.Controllers
         [HttpGet("{id}")]
         public ActionResult<MediaCategory> GetMediaCategory(int mediaId)
         {
-            MediaCategory mediaCategory = _context.MediaCategories.Where(m => m.MediaId == mediaId).FirstOrDefault();
+            MediaCategory? mediaCategory = _context.MediaCategories.Where(m => m.MediaId == mediaId).FirstOrDefault();
             return mediaCategory;
         }
 
@@ -45,8 +45,8 @@ namespace SoftITOFlix.Controllers
         [Authorize(Roles = "ContentAdmin")]
         public bool PostMediaCategory(string mediaName, short categoryId)
         {
-            MediaCategory mediaCategory = new MediaCategory();
-            Media media = _context.Medias.Where(m => m.Name == mediaName).FirstOrDefault();
+            MediaCategory? mediaCategory = new MediaCategory();
+            Media? media = _context.Medias.Where(m => m.Name == mediaName).FirstOrDefault();
 
             if (media == null)
             {
@@ -66,7 +66,7 @@ namespace SoftITOFlix.Controllers
         [Authorize(Roles = "ContentAdmin")]
         public ActionResult DeleteMediaCategory(int id)
         {
-            MediaCategory mediaCategory = _context.MediaCategories.Find(id);
+            MediaCategory? mediaCategory = _context.MediaCategories.Find(id);
             if (mediaCategory == null)
             {
                 return NotFound();
