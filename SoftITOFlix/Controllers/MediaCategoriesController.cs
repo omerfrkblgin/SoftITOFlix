@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -33,36 +34,26 @@ namespace SoftITOFlix.Controllers
         [HttpGet("{id}")]
         public ActionResult<MediaCategory> GetMediaCategory(int mediaId)
         {
-            Media media = _context.Medias.Find(mediaId)!;
-            MediaCategory mediaCategory = _context.MediaCategories.Where(m => m.MediaId == media.Id).FirstOrDefault()!;
+            MediaCategory mediaCategory = _context.MediaCategories.Where(m => m.MediaId == mediaId).FirstOrDefault();
             return mediaCategory;
         }
 
-        // PUT: api/MediaCategories/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPut("{id}")]
-        //public ActionResult PutMediaCategory(int id, MediaCategory mediaCategory)
-        //{
-
-
-        //    return NoContent();
-        //}
-
+        
         // POST: api/MediaCategories
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public bool PostMediaCategory(string mediaName, int categoryId)
+        [Authorize(Roles = "ContentAdmin")]
+        public bool PostMediaCategory(string mediaName, short categoryId)
         {
             MediaCategory mediaCategory = new MediaCategory();
             Media media = _context.Medias.Where(m => m.Name == mediaName).FirstOrDefault();
-            Category category = _context.Categories.Where(c => c.Id == categoryId).FirstOrDefault();
 
-            if (media == null || category == null)
+            if (media == null)
             {
                 return false;
             }
             mediaCategory.MediaId = media.Id;
-            mediaCategory.CategoryId = category.Id;
+            mediaCategory.CategoryId = categoryId;
             _context.MediaCategories.Add(mediaCategory);
             _context.SaveChanges();
 
@@ -72,6 +63,7 @@ namespace SoftITOFlix.Controllers
 
         // DELETE: api/MediaCategories/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "ContentAdmin")]
         public ActionResult DeleteMediaCategory(int id)
         {
             MediaCategory mediaCategory = _context.MediaCategories.Find(id);

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,24 +24,16 @@ namespace SoftITOFlix.Controllers
 
         // GET: api/Actors
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Actor>>> GetActors()
+        public ActionResult<List<Actor>> GetActors()
         {
-          if (_context.Actors == null)
-          {
-              return NotFound();
-          }
-            return await _context.Actors.ToListAsync();
+            return _context.Actors.AsNoTracking().ToList();
         }
 
         // GET: api/Actors/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Actor>> GetActor(int id)
+        public ActionResult<Actor> GetActor(int id)
         {
-          if (_context.Actors == null)
-          {
-              return NotFound();
-          }
-            var actor = await _context.Actors.FindAsync(id);
+            Actor actor = _context.Actors.Find(id);
 
             if (actor == null)
             {
@@ -53,72 +46,23 @@ namespace SoftITOFlix.Controllers
         // PUT: api/Actors/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutActor(int id, Actor actor)
+        [Authorize(Roles = "ContentAdmin")]
+        public void PutActor(int id, Actor actor)
         {
-            if (id != actor.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(actor).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ActorExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            _context.Actors.Update(actor);
+            _context.SaveChanges();
         }
 
         // POST: api/Actors
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Actor>> PostActor(Actor actor)
+        [Authorize(Roles = "ContentAdmin")]
+        public int PostActor(Actor actor)
         {
-          if (_context.Actors == null)
-          {
-              return Problem("Entity set 'SoftITOFlixContext.Actors'  is null.");
-          }
             _context.Actors.Add(actor);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
-            return CreatedAtAction("GetActor", new { id = actor.Id }, actor);
-        }
-
-        // DELETE: api/Actors/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteActor(int id)
-        {
-            if (_context.Actors == null)
-            {
-                return NotFound();
-            }
-            var actor = await _context.Actors.FindAsync(id);
-            if (actor == null)
-            {
-                return NotFound();
-            }
-
-            _context.Actors.Remove(actor);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool ActorExists(int id)
-        {
-            return (_context.Actors?.Any(e => e.Id == id)).GetValueOrDefault();
+            return actor.Id;
         }
     }
 }

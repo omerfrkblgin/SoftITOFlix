@@ -54,9 +54,9 @@ namespace SoftITOFlix
                     {
                         if (roleManager.Roles.Count() == 0)
                         {
-                            softITOFlixRole = new SoftITOFlixRole { Name = "Admin"};
+                            softITOFlixRole = new SoftITOFlixRole("Admin");
                             roleManager.CreateAsync(softITOFlixRole).Wait();
-                            softITOFlixRole = new SoftITOFlixRole { Name = "ContentAdmin" };
+                            softITOFlixRole = new SoftITOFlixRole ("ContentAdmin");
                             roleManager.CreateAsync(softITOFlixRole).Wait();
 
                         }

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -42,73 +44,45 @@ namespace SoftITOFlix.Controllers
             return mediaActor;
         }
 
-        // PUT: api/MediaActors/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPut("{id}")]
-        //public ActionResult PutMediaActor(int id, MediaActor mediaActor)
-        //{
-        //    if (id != mediaActor.MediaId)
-        //    {
-        //        return BadRequest();
-        //    }
-
-        //    _context.Entry(mediaActor).State = EntityState.Modified;
-
-        //    try
-        //    {
-        //        await _context.SaveChangesAsync();
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!MediaActorExists(id))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
-
-        //    return NoContent();
-        //}
+        
 
         // POST: api/MediaActors
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public void PostMediaActor(string mediaName, string actorName)
+        [Authorize(Roles = "ContentAdmin")]
+        public bool PostMediaActor(string mediaName, string actorName)
         {
-            Media? media = _context.Medias.Where(m => m.Name == mediaName).FirstOrDefault()!;
-            Actor? actor = _context.Actors.Where(a => a.Name == actorName).FirstOrDefault()!;
+            Media? media = _context.Medias.Where(m => m.Name == mediaName).FirstOrDefault();
+            Actor? actor = _context.Actors.Where(a => a.Name == actorName).FirstOrDefault();
+
+            MediaActor? mediaActor = new MediaActor();
+
             if (media == null || actor == null)
             {
-                
+                return false;
             }
+            mediaActor.ActorId = actor.Id;
+            mediaActor.MediaId = media.Id;
+            _context.MediaActors.Add(mediaActor);
+            _context.SaveChanges();
+            return true;
         }
 
         // DELETE: api/MediaActors/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMediaActor(int id)
+        [Authorize(Roles = "ContentAdmin")
+        public ActionResult DeleteMediaActor(int id)
         {
-            if (_context.MediaActors == null)
-            {
-                return NotFound();
-            }
-            var mediaActor = await _context.MediaActors.FindAsync(id);
+            MediaActor? mediaActor = _context.MediaActors.Find(id);
             if (mediaActor == null)
             {
                 return NotFound();
             }
 
             _context.MediaActors.Remove(mediaActor);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
             return NoContent();
-        }
-
-        private bool MediaActorExists(int id)
-        {
-            return (_context.MediaActors?.Any(e => e.MediaId == id)).GetValueOrDefault();
         }
     }
 }

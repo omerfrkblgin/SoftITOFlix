@@ -88,20 +88,16 @@ namespace SoftITOFlix.Controllers
 
         // DELETE: api/UserPlans/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUserPlan(long id)
+        public ActionResult DeleteUserPlan(long id)
         {
-            if (_context.UserPlans == null)
-            {
-                return NotFound();
-            }
-            var userPlan = await _context.UserPlans.FindAsync(id);
+            UserPlan? userPlan = _context.UserPlans.Find(id);
             if (userPlan == null)
             {
                 return NotFound();
             }
 
             _context.UserPlans.Remove(userPlan);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
             return NoContent();
         }

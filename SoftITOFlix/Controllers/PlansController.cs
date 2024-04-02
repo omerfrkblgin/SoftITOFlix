@@ -68,7 +68,7 @@ namespace SoftITOFlix.Controllers
         [HttpDelete("{id}")]
         public ActionResult DeletePlan(short id)
         {
-            var plan = _context.Plans.Find(id);
+            Plan? plan = _context.Plans.Find(id);
             if (plan == null)
             {
                 return NotFound();

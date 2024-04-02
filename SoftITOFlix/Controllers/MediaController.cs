@@ -52,6 +52,7 @@ namespace SoftITOFlix.Controllers
         // PUT: api/Media/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [Authorize(Roles = "ContentAdmin")]
         public void PutMedia(Media media)
         {
             _context.Medias.Update(media);
@@ -61,6 +62,7 @@ namespace SoftITOFlix.Controllers
         // POST: api/Media
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [Authorize(Roles = "ContentAdmin")]
         public int PostMedia(Media media)
         {
             _context.Medias.Add(media);
@@ -71,6 +73,7 @@ namespace SoftITOFlix.Controllers
 
         // DELETE: api/Media/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "ContentAdmin")]
         public string DeleteMedia(int id)
         {
             Media? media = _context.Medias.Find(id);

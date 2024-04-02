@@ -98,6 +98,7 @@ namespace SoftITOFlix.Controllers
 
         // DELETE: api/Episodes/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "ContentAdmin")]
         public string DeleteEpisode(long id)
         {
 
