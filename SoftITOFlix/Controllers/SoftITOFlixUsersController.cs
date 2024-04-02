@@ -114,24 +114,23 @@ namespace SoftITOFlix.Controllers
                 return NotFound();
             }
 
-            if(_context.UserPlans.Where(u => u.UserId == user.Id && u.EndDate >= DateTime.Today).Any() == false)
-            {
-                user.Passive= true;
-                _signInManager.UserManager.UpdateAsync(user).Wait();
-            }
-
-            if(user.Passive == true)
+            //if(_context.UserPlans.Where(u => u.UserId == user.Id && u.EndDate >= DateTime.Today).Any() == false)
+            //{
+            //    user.Passive= true;
+            //    _signInManager.UserManager.UpdateAsync(user).Wait();
+            //}
+            if (user.Passive == true)
             {
                 return Content("Passive");
             }
             result = _signInManager.PasswordSignInAsync(user, loginModel.Password, false, false).Result;
-
             
             if(result.Succeeded == true)
             {
                 mediaCategories = _context.UserFavorites.Where(u => u.UserId == user.Id).
                    Include(u => u.Media).
                    ThenInclude(u => u.MediaCategories).
+                   ToList().
                    SelectMany(u => u.Media!.MediaCategories!).
                    GroupBy(m => m.CategoryId).
                    OrderByDescending(m=>m.Count()).
@@ -139,10 +138,14 @@ namespace SoftITOFlix.Controllers
                 if(mediaCategories != null)
                 {
                     userWatches = _context.UserWatches.Where(u => u.UserId == user.Id).Include(u => u.Episode).Select(u => u.Episode!.MediaId).Distinct();
-
                     mediaQuery = _context.Medias.Include(m => m.MediaCategories.Where(mc => mc.CategoryId == mediaCategories.Key)).Where(m => userWatches.Contains(m.Id));
-
+                    if(user.Restriction != null)
+                    {
+                        mediaQuery = mediaQuery.Include(m => m.MediaRestrictions.Where(r => r.RestrictionId != user.Restriction));
+                    }
+                    medias = mediaQuery.ToList();
                 }
+                
             }
             return medias;
         }

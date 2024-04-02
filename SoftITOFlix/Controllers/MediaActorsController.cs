@@ -23,24 +23,16 @@ namespace SoftITOFlix.Controllers
 
         // GET: api/MediaActors
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MediaActor>>> GetMediaActors()
+        public ActionResult<List<MediaActor>> GetMediaActors()
         {
-          if (_context.MediaActors == null)
-          {
-              return NotFound();
-          }
-            return await _context.MediaActors.ToListAsync();
+            return _context.MediaActors.ToList();
         }
 
         // GET: api/MediaActors/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<MediaActor>> GetMediaActor(int id)
+        public ActionResult<MediaActor> GetMediaActor(int mediaId)
         {
-          if (_context.MediaActors == null)
-          {
-              return NotFound();
-          }
-            var mediaActor = await _context.MediaActors.FindAsync(id);
+            MediaActor mediaActor = _context.MediaActors.Where(m => m.MediaId == mediaId).FirstOrDefault()!;
 
             if (mediaActor == null)
             {
@@ -52,62 +44,46 @@ namespace SoftITOFlix.Controllers
 
         // PUT: api/MediaActors/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutMediaActor(int id, MediaActor mediaActor)
-        {
-            if (id != mediaActor.MediaId)
-            {
-                return BadRequest();
-            }
+        //[HttpPut("{id}")]
+        //public ActionResult PutMediaActor(int id, MediaActor mediaActor)
+        //{
+        //    if (id != mediaActor.MediaId)
+        //    {
+        //        return BadRequest();
+        //    }
 
-            _context.Entry(mediaActor).State = EntityState.Modified;
+        //    _context.Entry(mediaActor).State = EntityState.Modified;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MediaActorExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+        //    try
+        //    {
+        //        await _context.SaveChangesAsync();
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        if (!MediaActorExists(id))
+        //        {
+        //            return NotFound();
+        //        }
+        //        else
+        //        {
+        //            throw;
+        //        }
+        //    }
 
-            return NoContent();
-        }
+        //    return NoContent();
+        //}
 
         // POST: api/MediaActors
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<MediaActor>> PostMediaActor(MediaActor mediaActor)
+        public void PostMediaActor(string mediaName, string actorName)
         {
-          if (_context.MediaActors == null)
-          {
-              return Problem("Entity set 'SoftITOFlixContext.MediaActors'  is null.");
-          }
-            _context.MediaActors.Add(mediaActor);
-            try
+            Media? media = _context.Medias.Where(m => m.Name == mediaName).FirstOrDefault()!;
+            Actor? actor = _context.Actors.Where(a => a.Name == actorName).FirstOrDefault()!;
+            if (media == null || actor == null)
             {
-                await _context.SaveChangesAsync();
+                
             }
-            catch (DbUpdateException)
-            {
-                if (MediaActorExists(mediaActor.MediaId))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return CreatedAtAction("GetMediaActor", new { id = mediaActor.MediaId }, mediaActor);
         }
 
         // DELETE: api/MediaActors/5
