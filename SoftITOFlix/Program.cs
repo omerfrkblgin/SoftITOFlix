@@ -37,7 +37,7 @@ namespace SoftITOFlix
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-            app.UseAuthentication(); ;
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

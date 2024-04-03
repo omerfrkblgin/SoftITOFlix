@@ -19,11 +19,13 @@ namespace SoftITOFlix.Controllers
     {
         private readonly SignInManager<SoftITOFlixUser> _signInManager;
         private readonly SoftITOFlixContext _context;
+        
 
         public SoftITOFlixUsersController(SignInManager<SoftITOFlixUser> signInManager, SoftITOFlixContext context)
         {
             _signInManager = signInManager;
             _context = context;
+            
         }
         public struct LoginModel
         {
@@ -37,7 +39,7 @@ namespace SoftITOFlix.Controllers
         public ActionResult<List<SoftITOFlixUser>> GetUsers(bool includePassive = true)
         {
             IQueryable<SoftITOFlixUser> users = _signInManager.UserManager.Users;
-            if(includePassive == false)
+            if (includePassive == false)
             {
                 users = users.Where(u => u.Passive == false);
             }
@@ -75,14 +77,14 @@ namespace SoftITOFlix.Controllers
         public ActionResult PutSoftITOFlixUser(SoftITOFlixUser softITOFlixUser)
         {
             SoftITOFlixUser? user = null;
-            
-                if (User.FindFirstValue(ClaimTypes.NameIdentifier) != softITOFlixUser.Id.ToString())
-                {
-                    return Unauthorized();
-                }
-            
 
-            user = _signInManager.UserManager.Users.Where(u=>u.Id== softITOFlixUser.Id).FirstOrDefault()!;
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) != softITOFlixUser.Id.ToString())
+            {
+                return Unauthorized();
+            }
+
+
+            user = _signInManager.UserManager.Users.Where(u => u.Id == softITOFlixUser.Id).FirstOrDefault()!;
 
             if (user == null)
             {
@@ -98,7 +100,7 @@ namespace SoftITOFlix.Controllers
 
             return Ok();
         }
-
+        
         [HttpPost("Login")]
         public ActionResult<List<Media>> Login(LoginModel loginModel)
         {
@@ -109,23 +111,29 @@ namespace SoftITOFlix.Controllers
             IQueryable<int> userWatches;
             IGrouping<short, MediaCategory>? mediaCategories;
 
-            if(user == null)
+            if (user == null)
             {
                 return NotFound();
             }
 
-            if(_context.UserPlans.Where(u => u.UserId == user.Id && u.EndDate >= DateTime.Today).Any() == false)
+            result = _signInManager.PasswordSignInAsync(user, loginModel.Password, false, false).Result;
+
+            if (User.IsInRole("Admin") == false)
             {
-                user.Passive= true;
-                _signInManager.UserManager.UpdateAsync(user).Wait();
+                if (_context.UserPlans.Where(u => u.UserId == user.Id && u.EndDate >= DateTime.Today).Any() == false)
+                {
+                    user.Passive = true;
+                    _signInManager.UserManager.UpdateAsync(user).Wait();
+                }
             }
+
             if (user.Passive == true)
             {
                 return Content("Passive");
             }
-            result = _signInManager.PasswordSignInAsync(user, loginModel.Password, false, false).Result;
             
-            if(result.Succeeded == true)
+
+            if (result.Succeeded == true)
             {
                 mediaCategories = _context.UserFavorites.Where(u => u.UserId == user.Id).
                    Include(u => u.Media).
@@ -133,25 +141,25 @@ namespace SoftITOFlix.Controllers
                    ToList().
                    SelectMany(u => u.Media.MediaCategories!).
                    GroupBy(m => m.CategoryId).
-                   OrderByDescending(m=>m.Count()).
+                   OrderByDescending(m => m.Count()).
                    FirstOrDefault();
-                if(mediaCategories != null)
+                if (mediaCategories != null)
                 {
                     userWatches = _context.UserWatches.Where(u => u.UserId == user.Id).Include(u => u.Episode).Select(u => u.Episode!.MediaId).Distinct();
                     mediaQuery = _context.Medias.Include(m => m.MediaCategories.Where(mc => mc.CategoryId == mediaCategories.Key)).Where(m => userWatches.Contains(m.Id));
-                    if(user.Restriction != null)
+                    if (user.Restriction != null)
                     {
                         mediaQuery = mediaQuery.Include(m => m.MediaRestrictions.Where(r => r.RestrictionId != user.Restriction));
                     }
                     medias = mediaQuery.ToList();
                 }
-                
+
             }
             return medias;
         }
 
         [HttpPost("Logout")]
-        public void Logout() 
+        public void Logout()
         {
 
         }
@@ -188,9 +196,9 @@ namespace SoftITOFlix.Controllers
                 }
             }
 
-            user = _signInManager.UserManager.Users.Where(u => u.Id == id).FirstOrDefault()!; 
+            user = _signInManager.UserManager.Users.Where(u => u.Id == id).FirstOrDefault()!;
 
-       
+
             if (user == null)
             {
                 return NotFound();
