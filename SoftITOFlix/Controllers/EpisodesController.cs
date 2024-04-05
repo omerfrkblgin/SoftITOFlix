@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using SoftITOFlix.Data;
 using SoftITOFlix.Models;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 
 namespace SoftITOFlix.Controllers
 {
@@ -19,10 +20,12 @@ namespace SoftITOFlix.Controllers
     public class EpisodesController : ControllerBase
     {
         private readonly SoftITOFlixContext _context;
-
-        public EpisodesController(SoftITOFlixContext context)
+        private readonly SignInManager<SoftITOFlixUser> _signInManager;
+        
+        public EpisodesController(SoftITOFlixContext context, SignInManager<SoftITOFlixUser> signInManager)
         {
             _context = context;
+            _signInManager = signInManager;
         }
 
         // GET: api/Episodes
@@ -51,25 +54,42 @@ namespace SoftITOFlix.Controllers
 
         [HttpGet("Watch")]
         [Authorize]
-        public void Watch(long id)
+        public string Watch(long id)
         { 
             UserWatched userWatched = new UserWatched();
-            Episode episode = _context.Episodes.Find(id)!;
+            Episode? episode = _context.Episodes.Include(e => e.Media).ThenInclude(m => m.MediaRestrictions).FirstOrDefault(e => e.Id == id);
+            if (episode == null)
+            {
+                return "Episode null";
+            }
+
+            List<MediaRestriction> mediaRestrictions = episode.Media.MediaRestrictions;
+            var findUser = _signInManager.UserManager.GetUserAsync(User).Result;
+            int userAge = DateTime.Today.Year - findUser.BirthDate.Year; 
             try
             {
-                userWatched.UserId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                userWatched.EpisodeId = id;
-                _context.UserWatches.Add(userWatched);
-                episode.ViewCount++;
-                _context.Episodes.Update(episode);
-                _context.SaveChanges();
+                foreach (MediaRestriction mediaRestriction in mediaRestrictions)
+                {
+                    if (mediaRestriction.RestrictionId >= userAge)
+                    {
+                        return "Not Allowed";
+                    }
+                    userWatched.UserId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                    userWatched.EpisodeId = id;
+                    _context.UserWatches.Add(userWatched);
+                    episode.ViewCount++;
+                    _context.Episodes.Update(episode);
+                    _context.SaveChanges();
+                }
                 
+                return "Success";
+
             }
             catch (Exception ex)
             {
                 
             }
-            
+            return "";
         }
 
         // PUT: api/Episodes/5
@@ -80,7 +100,6 @@ namespace SoftITOFlix.Controllers
         {
             _context.Episodes.Update(episode);
             _context.SaveChanges();
-
         }
 
         // POST: api/Episodes

@@ -74,12 +74,16 @@ namespace SoftITOFlix.Controllers
         [HttpPost]
         public void PostUserPlan(string email, short planId)
         {
-            UserPlan userPlan = new UserPlan();
+            Plan? plan = _context.Plans.Find(planId);
             SoftITOFlixUser? user = _userManager.Users.Where(u => u.Email == email).FirstOrDefault();
             if (user != null)
             {
+                UserPlan userPlan = new UserPlan();
                 userPlan.UserId = user.Id;
-                userPlan.PlanId = planId;
+                userPlan.PlanId = plan.Id;
+                userPlan.StartDate = DateTime.Today;
+                userPlan.EndDate = userPlan.StartDate.AddMonths(1);
+                user.Passive = false;
                 _context.UserPlans.Add(userPlan);
                 _context.SaveChanges();
             }

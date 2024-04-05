@@ -19,13 +19,13 @@ namespace SoftITOFlix.Controllers
     {
         private readonly SignInManager<SoftITOFlixUser> _signInManager;
         private readonly SoftITOFlixContext _context;
-        
+
 
         public SoftITOFlixUsersController(SignInManager<SoftITOFlixUser> signInManager, SoftITOFlixContext context)
         {
             _signInManager = signInManager;
             _context = context;
-            
+
         }
         public struct LoginModel
         {
@@ -100,7 +100,7 @@ namespace SoftITOFlix.Controllers
 
             return Ok();
         }
-        
+
         [HttpPost("Login")]
         public ActionResult<List<Media>> Login(LoginModel loginModel)
         {
@@ -120,36 +120,43 @@ namespace SoftITOFlix.Controllers
 
             if (User.IsInRole("Admin") == false)
             {
-                if (_context.UserPlans.Where(u => u.UserId == user.Id && u.EndDate >= DateTime.Today).Any() == false)
+                if (User.IsInRole("ContentAdmin") == false)
                 {
-                    user.Passive = true;
-                    _signInManager.UserManager.UpdateAsync(user).Wait();
-                }
+                    if (_context.UserPlans.Where(u => u.UserId == user.Id && u.EndDate >= DateTime.Today).Any() == false)
+                    {
+                        user.Passive = true;
+                        _signInManager.UserManager.UpdateAsync(user).Wait();
+                    }
+                }  
             }
 
             if (user.Passive == true)
             {
                 return Content("Passive");
             }
-            
+
 
             if (result.Succeeded == true)
             {
                 mediaCategories = _context.UserFavorites.Where(u => u.UserId == user.Id).
-                   Include(u => u.Media).
-                   ThenInclude(u => u.MediaCategories).
+                   Include(u => u.Media!).
+                   Include(u => u.Media!.MediaCategories).
                    ToList().
-                   SelectMany(u => u.Media.MediaCategories!).
+                   SelectMany(u => u.Media!.MediaCategories!).
                    GroupBy(m => m.CategoryId).
                    OrderByDescending(m => m.Count()).
                    FirstOrDefault();
                 if (mediaCategories != null)
                 {
                     userWatches = _context.UserWatches.Where(u => u.UserId == user.Id).Include(u => u.Episode).Select(u => u.Episode!.MediaId).Distinct();
-                    mediaQuery = _context.Medias.Include(m => m.MediaCategories.Where(mc => mc.CategoryId == mediaCategories.Key)).Where(m => userWatches.Contains(m.Id));
+                    mediaQuery = _context.Medias.Include(m => m.MediaCategories).Where(m => m.MediaCategories!.Any(mc => mc.CategoryId == mediaCategories.Key) && !userWatches.Contains(m.Id));
                     if (user.Restriction != null)
                     {
-                        mediaQuery = mediaQuery.Include(m => m.MediaRestrictions.Where(r => r.RestrictionId != user.Restriction));
+                        //old code:
+                        //mediaQuery = mediaQuery.Include(m => m.MediaRestrictions.Where(r => r.RestrictionId != user.Restriction));
+                        mediaQuery = mediaQuery
+                        .Include(m => m.MediaRestrictions)
+                        .Where(m => !m.MediaRestrictions.Any(r => r.RestrictionId == user.Restriction));
                     }
                     medias = mediaQuery.ToList();
                 }
@@ -161,7 +168,33 @@ namespace SoftITOFlix.Controllers
         [HttpPost("Logout")]
         public void Logout()
         {
+            _signInManager.SignOutAsync().Wait();
+        }
 
+        [HttpPost("AssignRole")]
+        [Authorize(Roles = "Admin")]
+        public ActionResult AssignRole(string email)
+        {
+            SoftITOFlixUser? user = _signInManager.UserManager.Users.Where(u => u.Email == email).FirstOrDefault();
+            if (user == null)
+            {
+                return NotFound();
+            }
+            _signInManager.UserManager.AddToRoleAsync(user, "ContentAdmin").Wait();
+            return Ok();
+        }
+
+        [HttpPost("RemoveRole")]
+        [Authorize(Roles = "Admin")]
+        public ActionResult RemoveRole(string email)
+        {
+            SoftITOFlixUser? user = _signInManager.UserManager.Users.Where(u => u.Email == email).FirstOrDefault();
+            if (user == null)
+            {
+                return NotFound();
+            }
+            _signInManager.UserManager.RemoveFromRoleAsync(user, "ContentAdmin").Wait();
+            return Ok();
         }
 
         // POST: api/SoftITOFlixUsers
@@ -174,7 +207,7 @@ namespace SoftITOFlix.Controllers
                 return BadRequest();
             }
 
-            IdentityResult identityResult = _signInManager.UserManager.CreateAsync(softITOFlixUser).Result;
+            IdentityResult identityResult = _signInManager.UserManager.CreateAsync(softITOFlixUser, softITOFlixUser.Password).Result;
 
             if (identityResult != IdentityResult.Success)
             {

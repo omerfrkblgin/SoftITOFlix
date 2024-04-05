@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace SoftITOFlix.Models
 {
@@ -6,6 +7,7 @@ namespace SoftITOFlix.Models
     {
         public int MediaId { get; set; }
         [ForeignKey("MediaId")]
+        [JsonIgnore]
         public Media? Media { get; set; }
 
         public short CategoryId { get; set; }
