@@ -68,14 +68,13 @@ namespace SoftITOFlix
                         {
                             user = new SoftITOFlixUser();
                             user.UserName = "Admin";
-                            user.Name = "Administrator";
+                            user.Name = "Admin";
                             user.Email = "admin@gmail.com";
                             user.PhoneNumber = "5023424232";
                             user.BirthDate = DateTime.Today;
                             user.Passive = false;
                             userManager.CreateAsync(user, "Admin123!").Wait();
                             userManager.AddToRoleAsync(user, "Admin").Wait();
-
                         }
                     }
                 }
