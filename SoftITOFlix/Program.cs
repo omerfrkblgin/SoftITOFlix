@@ -11,6 +11,7 @@ namespace SoftITOFlix
     {
         public static void Main(string[] args)
         {
+            Restricton restricton;
             SoftITOFlixRole softITOFlixRole;
             SoftITOFlixUser user;
 
@@ -48,6 +49,29 @@ namespace SoftITOFlix
                 if (context != null)
                 {
                     context.Database.Migrate();
+                    if(context.Restrictons.Count() == 0)
+                    {
+                        restricton = new Restricton();
+                        restricton.Id = 0;
+                        restricton.Name = "Genel Ýzleyici";
+                        context.Restrictons.Add(restricton);
+                        restricton = new Restricton();
+                        restricton.Id = 7;
+                        restricton.Name = "7 yaþ ve üzeri";
+                        context.Restrictons.Add(restricton);
+                        restricton = new Restricton();
+                        restricton.Id = 13;
+                        restricton.Name = "13 yaþ ve üzeri";
+                        context.Restrictons.Add(restricton);
+                        restricton = new Restricton();
+                        restricton.Id = 18;
+                        restricton.Name = "18 yaþ ve üzeri";
+                        context.Restrictons.Add(restricton);
+                        restricton = new Restricton();
+                        restricton.Id = 19;
+                        restricton.Name = "Olumsuz örnek";
+                        context.Restrictons.Add(restricton);
+                    }
                     context.SaveChanges();
                     RoleManager<SoftITOFlixRole>? roleManager = app.Services.CreateScope().ServiceProvider.GetService<RoleManager<SoftITOFlixRole>>();
                     if (roleManager != null)

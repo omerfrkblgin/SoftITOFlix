@@ -13,11 +13,11 @@ namespace SoftITOFlix.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class RestrictonsController : ControllerBase
+    public class RestrictionsController : ControllerBase
     {
         private readonly SoftITOFlixContext _context;
 
-        public RestrictonsController(SoftITOFlixContext context)
+        public RestrictionsController(SoftITOFlixContext context)
         {
             _context = context;
         }

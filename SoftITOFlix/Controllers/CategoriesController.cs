@@ -30,16 +30,24 @@ namespace SoftITOFlix.Controllers
         }
 
         // GET: api/Categories/5
-        [HttpGet("{id}")]
-        public ActionResult<Category> GetCategory(short id)
+        [HttpGet("{categoryId}")]
+        public ActionResult GetCategory(short categoryId)
         {
-            Category? category = _context.Categories.Find(id);
-            if (category == null)
+            List<MediaCategory> mediaCategories = _context.MediaCategories.Include(mc => mc.Media).Where(mc => mc.CategoryId == categoryId).ToList();
+
+            if (mediaCategories == null)
             {
                 return NotFound();
             }
 
-            return category;
+            List<Media>? mediaList = new List<Media>();
+
+            foreach (MediaCategory mediaCategory in mediaCategories)
+            {
+                mediaList.Add(mediaCategory.Media);
+            }
+
+            return Ok(mediaList);
         }
 
         // PUT: api/Categories/5

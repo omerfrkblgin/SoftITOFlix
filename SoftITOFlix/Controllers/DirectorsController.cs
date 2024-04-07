@@ -30,17 +30,23 @@ namespace SoftITOFlix.Controllers
         }
 
         // GET: api/Directors/5
-        [HttpGet("{id}")]
-        public ActionResult<Director> GetDirector(int id)
+        [HttpGet("{directorId}")]
+        public ActionResult GetDirector(int directorId)
         {
-            Director? director = _context.Directors.Find(id);
+            List<MediaDirector>? mediaDirectors = _context.MediaDirectors.Include(md => md.Media).Where(md => md.DirectorId == directorId).ToList();
 
-            if (director == null)
+            if (mediaDirectors == null)
             {
                 return NotFound();
             }
 
-            return director;
+            List<Media>? mediaList = new List<Media>();
+
+            foreach (MediaDirector mediaDirector in  mediaDirectors)
+            {
+                mediaList.Add(mediaDirector.Media);
+            }
+            return Ok(mediaList);
         }
 
         // PUT: api/Directors/5

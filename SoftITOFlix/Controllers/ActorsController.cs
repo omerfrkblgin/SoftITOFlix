@@ -30,17 +30,44 @@ namespace SoftITOFlix.Controllers
         }
 
         // GET: api/Actors/5
-        [HttpGet("{id}")]
-        public ActionResult<Actor> GetActor(int id)
+        [HttpGet("MediaActor/{mediaId}")]
+        public ActionResult GetActorByMedia(int mediaId)
         {
-            Actor? actor = _context.Actors.Find(id);
+            List<MediaActor>? mediaActors = _context.MediaActors.Include(ma => ma.Actor).Where(ma => ma.MediaId == mediaId).ToList();
 
-            if (actor == null)
+            if(mediaActors == null  || mediaActors.Count == 0)
             {
                 return NotFound();
             }
 
-            return actor;
+            List<Actor>? actorList = new List<Actor>();
+
+            foreach (MediaActor mediaActor in mediaActors)
+            {
+                actorList.Add(mediaActor.Actor);
+            }
+
+            return Ok(actorList);
+        }
+
+        [HttpGet("ActorMedia/{actorId}")]
+        public ActionResult GetMediaByActor(int actorId)
+        {
+            List<MediaActor>? mediaActors = _context.MediaActors.Include(ma => ma.Media).Where(ma => ma.ActorId == actorId).ToList();
+
+            if (mediaActors == null)
+            {
+                return NotFound();
+            }
+
+            List<Media>? mediaList = new List<Media>();
+
+            foreach (MediaActor mediaActor in mediaActors)
+            {
+                mediaList.Add(mediaActor.Media);
+            }
+
+            return Ok(mediaList);
         }
 
         // PUT: api/Actors/5
